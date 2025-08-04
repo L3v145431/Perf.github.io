@@ -37,13 +37,17 @@ async function generateHash(input) {
 }
 
 // Función para guardar información del certificado en Firestore
+// Función para guardar información del certificado en Firestore
 async function saveCertificateToFirestore(id, nombre, curso, fecha, hashHex) {
   try {
+    // Obtener la fecha actual
+    const fechaActual = new Date().toISOString().split('T')[0];
+
     await db.collection('certificates').add({
       id: id,
       nombre: nombre,
       curso: curso,
-      fecha: fecha,
+      fecha: fechaActual, // Utilizar la fecha actual
       hash: hashHex,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -57,6 +61,7 @@ async function saveCertificateToFirestore(id, nombre, curso, fecha, hashHex) {
     }
   }
 }
+
 
 // Función para generar el enlace del código QR
 function generateQRCodeLink(id) {
@@ -92,13 +97,20 @@ async function generarPDFIndividual(nombre, curso, fecha, id, hashHex) {
     doc.setTextColor(0, 0, 0);
     doc.setFont('Helvetica', 'normal');
     doc.setFontSize(14);
+
     const text = "weSpark hereby certifies that you have successfully completed our Design Sprint Masterclass, demonstrating your ability to lead teams to create and test new product concepts in only 4 days.";
     doc.text(doc.splitTextToSize(text, 600), 120, 250);
+
     const text1 = "This achievement signifies your initial step toward mastering the art of Sprinting. Continue to enhance your expertise by consistently applying the Sprint methodology to tackle real-world challenges and watch";
     doc.text(doc.splitTextToSize(text1, 650), 100, 310);
     doc.text("your skills evolve", 340, 345);
+
     doc.setFontSize(10);
-    doc.text(`Fecha: ${fecha}`, 128, 585);
+
+    // Obtener la fecha actual
+    const fechaActual = new Date().toLocaleDateString();
+
+    doc.text(`Fecha: ${fechaActual}`, 128, 585);
     doc.text(`ID: ${id}`, 4, 15);
     doc.setFontSize(10);
     doc.text(`Hash: ${hashHex}`, 263, 585);
@@ -112,6 +124,7 @@ async function generarPDFIndividual(nombre, curso, fecha, id, hashHex) {
     throw error;
   }
 }
+
 
 async function downloadCertificate(certificateId) {
   showLoading();
