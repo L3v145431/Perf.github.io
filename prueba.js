@@ -60,13 +60,14 @@ async function saveCertificateToFirestore(id, nombre, curso, fecha, hashHex) {
 
 // Función para generar el enlace del código QR
 function generateQRCodeLink(id) {
-  return 'https://static.wixstatic.com/media/a687f1_2aec1f4419154664966e3f83b91c4bec~mv2.png';
+  return 'https://static.wixstatic.com/media/a687f1_d41ce5e63188472fbf07f5d14db3c63e~mv2.png';
 }
 
 async function generarPDFIndividual(nombre, curso, fecha, id, hashHex) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'A4' });
   const fondoURL = 'https://static.wixstatic.com/media/a687f1_6daa751a4aac4a418038ae37f20db004~mv2.jpg';
+
   const loadImage = (src) => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -76,10 +77,12 @@ async function generarPDFIndividual(nombre, curso, fecha, id, hashHex) {
       img.src = src;
     });
   };
+
   try {
     const fondo = await loadImage(fondoURL);
     const qrUrl = generateQRCodeLink(id);
     const qrImage = await loadImage(qrUrl);
+
     doc.addImage(fondo, 'JPEG', 0, 0, 850, 595);
     doc.setFontSize(35);
     doc.setTextColor(0, 0, 0);
@@ -100,10 +103,13 @@ async function generarPDFIndividual(nombre, curso, fecha, id, hashHex) {
     doc.setFontSize(10);
     doc.text(`Hash: ${hashHex}`, 263, 585);
     doc.addImage(qrImage, 'PNG', 124, 460, 100, 100);
-    doc.save(`certificado_${id}.pdf`);
+
+    // Devolver el PDF como un Blob
+    return doc.output('blob');
   } catch (error) {
     console.error("Error al generar PDF:", error);
     alert(`⚠️ Error al generar el PDF para ${nombre}`);
+    throw error;
   }
 }
 
@@ -114,8 +120,18 @@ async function downloadCertificate(certificateId) {
     if (!certificate) throw new Error('Certificate not found');
     const id = generateUniqueId();
     const hashHex = await generateHash(id);
-    await generarPDFIndividual(certificate.nombre, certificate.course.title, certificate.completionDate, id, hashHex);
+    const pdfBlob = await generarPDFIndividual(certificate.nombre, certificate.course.title, certificate.completionDate, id, hashHex);
     await saveCertificateToFirestore(id, certificate.nombre, certificate.course.title, certificate.completionDate, hashHex);
+
+    // Crear un enlace para descargar el PDF
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    const a = document.createElement('a');
+    a.href = pdfUrl;
+    a.download = `certificado_${id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
     showToast('success', 'Certificate Downloaded', 'Your certificate has been downloaded successfully.');
   } catch (error) {
     console.error('Download error:', error);
@@ -144,8 +160,6 @@ function editCourse(courseId) {
     document.getElementById('course-description').value = course.description;
     document.getElementById('course-duration').value = course.duration;
     document.getElementById('course-icon').value = course.icon;
-
-    // Cargar la URL de la imagen desde localStorage
     const savedImageUrl = localStorage.getItem(`courseImage_${courseId}`);
     if (savedImageUrl) {
       document.getElementById('course-image-preview').src = savedImageUrl;
@@ -153,7 +167,6 @@ function editCourse(courseId) {
     } else {
       document.getElementById('course-image-preview').style.display = 'none';
     }
-
     document.getElementById('course-form-container').classList.remove('hidden');
   }
 }
@@ -175,7 +188,6 @@ async function uploadImage(file) {
   return new Promise((resolve) => {
     setTimeout(() => {
       const imageUrl = URL.createObjectURL(file);
-      // Guardar la URL de la imagen en localStorage
       localStorage.setItem(`courseImage_${currentCourseId || 'new'}`, imageUrl);
       resolve(imageUrl);
     }, 1000);
@@ -192,7 +204,6 @@ document.getElementById('course-form').addEventListener('submit', async function
   if (currentImageFile) {
     imageUrl = await uploadImage(currentImageFile);
   }
-
   if (currentCourseId) {
     coursesCache = coursesCache.map(c => {
       if (c.id === currentCourseId) {
@@ -211,10 +222,7 @@ document.getElementById('course-form').addEventListener('submit', async function
 });
 
 function deleteCourse(courseId) {
-  // Eliminar la URL de la imagen de localStorage
   localStorage.removeItem(`courseImage_${courseId}`);
-
-  // Eliminar el curso del array de cursos
   coursesCache = coursesCache.filter(course => course.id !== courseId);
   saveCoursesToLocalStorage();
   displayCoursesTable();
@@ -247,7 +255,6 @@ function setupEventListeners() {
       if (view) showView(view);
     });
   });
-
   const certInput = document.getElementById('certificate-id');
   if (certInput) {
     certInput.addEventListener('keypress', (e) => {
@@ -256,7 +263,6 @@ function setupEventListeners() {
       }
     });
   }
-
   document.addEventListener('input', (e) => {
     if (e.target.id === 'users-search') {
       filterUsersTable(e.target.value);
@@ -647,9 +653,72 @@ function clearFile() {
   importBtn.disabled = true;
 }
 
-function importCsv() {
-  alert('Import functionality not implemented');
-  clearFile();
+async function importCsv() {
+  const fileInput = document.getElementById('csv-file');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    showToast('error', 'No File Selected', 'Please select a CSV file to import.');
+    return;
+  }
+
+  showLoading();
+
+  try {
+    const results = await new Promise((resolve, reject) => {
+      Papa.parse(file, {
+        header: true,
+        complete: resolve,
+        error: reject
+      });
+    });
+
+    const data = results.data;
+    const zip = new JSZip();
+    const defaultDate = '2025-07-01'; // Fecha por defecto
+
+    for (const row of data) {
+      let { nombre, curso, fecha } = row;
+
+      // Asignar fecha por defecto si no se proporciona una fecha
+      if (!fecha) {
+        fecha = defaultDate;
+        console.warn(`La fecha no estaba definida para ${nombre}, se asignó la fecha por defecto: ${defaultDate}`);
+      }
+
+      const id = generateUniqueId();
+      const hashHex = await generateHash(id);
+
+      // Generar el PDF del certificado y obtener el Blob
+      const pdfBlob = await generarPDFIndividual(nombre, curso, fecha, id, hashHex);
+
+      // Guardar el certificado en Firestore
+      await saveCertificateToFirestore(id, nombre, curso, fecha, hashHex);
+
+      // Agregar el PDF al ZIP
+      zip.file(`certificado_${id}.pdf`, pdfBlob);
+    }
+
+    // Generar el archivo ZIP
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const zipUrl = URL.createObjectURL(zipBlob);
+
+    // Descargar el archivo ZIP
+    const a = document.createElement('a');
+    a.href = zipUrl;
+    a.download = 'certificados.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    showToast('success', 'Certificates Generated', 'The certificates have been generated and downloaded successfully.');
+  } catch (error) {
+    console.error('Error importing CSV:', error);
+    showToast('error', 'Import Failed', 'An error occurred while importing the CSV file.');
+  } finally {
+    hideLoading();
+    clearFile();
+  }
 }
 
 function showLoading() {
