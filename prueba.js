@@ -350,11 +350,14 @@ function displayCertificates(certificates) {
   }
   grid.innerHTML = certificates.map(cert => createCertificateCard(cert)).join('');
 }
-
 function createCertificateCard(certificate) {
   const completionDate = new Date(certificate.completionDate).toLocaleDateString();
   const courseIcon = certificate.course?.icon || 'fas fa-certificate';
   const courseThumbnail = certificate.course?.image;
+
+  // Construye el enlace de LinkedIn con los parámetros adicionales
+  const linkedInUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent(certificate.course.title)}&organizationId=13993759&certificateUrl=${encodeURIComponent(window.location.href)}&certificateId=${encodeURIComponent(certificate.id)}`;
+
   return `
     <div class="certificate-card">
       ${courseThumbnail ? `
@@ -380,14 +383,15 @@ function createCertificateCard(certificate) {
             <i class="fas fa-download"></i>
             Download PDF
           </button>
-          <a href="https://www.linkedin.com/in/tu-perfil" target="_blank" class="btn btn-linkedin">
-            <i class="fab fa-linkedin"></i>
+          <a href="${linkedInUrl}" target="_blank" class="btn btn-linkedin">
+            <i class="fab fa-linkedin"></i> Add to LinkedIn
           </a>
         </div>
       </div>
     </div>
   `;
 }
+
 
 function updateGraduateStats(certificates) {
   const totalCertificates = certificates?.length || 0;
