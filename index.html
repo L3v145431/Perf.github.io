@@ -13,128 +13,125 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-
-
-    
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script>
         // Configuración de Firebase
-       const firebaseConfig = {
-  apiKey: "AIzaSyCmTISieA5tp7AKtXM0Vuf5afFuCZXv33k",
-  authDomain: "wses-a18fa.firebaseapp.com",
-  projectId: "wses-a18fa",
-  storageBucket: "wses-a18fa.firebasestorage.app",
-  messagingSenderId: "147530546947",
-  appId: "1:147530546947:web:236f6e900decf4b0bab336"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmTISieA5tp7AKtXM0Vuf5afFuCZXv33k",
+            authDomain: "wses-a18fa.firebaseapp.com",
+            projectId: "wses-a18fa",
+            storageBucket: "wses-a18fa.appspot.com",
+            messagingSenderId: "147530546947",
+            appId: "1:147530546947:web:236f6e900decf4b0bab336"
+        };
 
-;
         // Inicializar Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        
     </script>
+    
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <i class="fas fa-graduation-cap"></i>
-                <span>WeSpark</span>
+    <!-- Header -->
+<header class="header">
+    <div class="header-container">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <span>WeSpark</span>
+        </div>
+        <div class="nav-section">
+            <div class="nav-buttons">
+                <button class="nav-btn active" data-view="graduate">Graduate</button>
+                <button class="nav-btn" data-view="verifier">Verifier</button>
+                <button class="nav-btn" data-view="admin">Admin</button>
             </div>
-            <div class="nav-section">
-                <div class="nav-buttons">
-                    <button class="nav-btn active" data-view="graduate">Graduate</button>
-                    <button class="nav-btn" data-view="verifier">Verifier</button>
-                    <button class="nav-btn" data-view="admin">Admin</button>
-                </div>
-                <div class="user-info">
-                    <i class="fas fa-user"></i>
-                    <span>John Doe</span>
-                </div>
+            <div class="user-info">
+                <i class="fas fa-user"></i>
+                <span id="user-name">John Doe</span>
+                <!-- Botón de Logout -->
+                <button class="btn btn-outline logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
         </div>
-    </header>
+    </div>
+</header>
+
+
     <!-- Loading Spinner -->
     <div id="loading" class="loading hidden">
         <div class="spinner"></div>
     </div>
+
     <!-- Graduate Dashboard -->
     <div id="graduate-view" class="view active">
         <main class="main-content">
-            <center><div class="content-header">
-                <h1>My Certificates</h1>
-                <p>Manage and download your course certificates</p>
-            </div></center>
+            <center>
+                <div class="content-header">
+                    <h1>My Certificates</h1>
+                    <p>Manage and download your course certificates</p>
+                </div>
+            </center>
             <!-- Stats Cards -->
-           <center> <div class="stats-grid">
-                <div class="stats-card">
-                    <div class="stats-icon bg-primary">
-                        <i class="fas fa-tag"></i>
+            <center>
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <div class="stats-icon bg-primary">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <center>
+                            <div class="stats-content">
+                                <div class="stats-title">Total Certificates</div>
+                                <div class="stats-value" id="total-certificates">0</div>
+                            </div>
+                        </center>
                     </div>
-                    <center><div class="stats-content">
-                        <div class="stats-title">Total Certificates</div>
-                <center><div class="stats-value" id="total-certificates">0</div></center>
+                    <div class="stats-card">
+                        <div class="stats-icon bg-secondary-green">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stats-content">
+                            <div class="stats-title">Hours Completed</div>
+                            <center>
+                                <div class="stats-value" id="total-hours">0</div>
+                            </center>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon bg-accent-orange">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stats-content">
+                            <center>
+                                <div class="stats-title">Skill Level</div>
+                            </center>
+                            <div class="stats-value">Advanced</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon bg-purple">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stats-content">
+                            <center>
+                                <div class="stats-title">Advanced</div>
+                            </center>
+                            <div class="stats-value">congrats!</div>
+                        </div>
                     </div>
                 </div>
-                <div class="stats-card">
-                    <div class="stats-icon bg-secondary-green">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stats-content">
-                        <div class="stats-title">Hours Completed</div>
-                        <center><div class="stats-value" id="total-hours">0</div></center>
-                    </div>
-                </div>
-                <div class="stats-card">
-                    <div class="stats-icon bg-accent-orange">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                    <div class="stats-content">
-                <center><div class="stats-title">Skill Level</div></center>
-                        <div class="stats-value">Advanced</div>
-                    </div>
-                    
-                    
-                </div>
-                <div class="stats-card">
-                    <div class="stats-icon bg-purple">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="stats-content">
-                <center><div class="stats-title">Advanced</div></center>
-                        <div class="stats-value">congrats!</div>
-                    </div>
-                
-            </div></center>
+            </center>
             <!-- Certificates Grid -->
             <div id="certificates-grid" class="certificates-grid">
                 <!-- Certificates will be loaded here -->
             </div>
             <!-- Profile Section -->
-            <div class="profile-section">
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Profile Settings</h2>
-                    </div>
-                    <div class="card-content">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="name">Full Name</label>
-                                <input type="text" id="name" value="John Doe">
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" value="john.doe@example.com">
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" onclick="updateProfile()">Update Profile</button>
-                    </div>
-                </div>
-            </div>
+            
         </main>
     </div>
+
     <!-- Verifier View -->
     <div id="verifier-view" class="view">
         <main class="main-content">
@@ -151,12 +148,7 @@
                         <div class="verify-form-container">
                             <label for="certificate-id">Certificate Number</label>
                             <div class="verify-input-group">
-                                <input
-                                    type="text"
-                                    id="certificate-id"
-                                    placeholder="Enter certificate number (e.g., WS-2025-001)"
-                                    class="verify-input"
-                                >
+                                <input type="text" id="certificate-id" placeholder="Enter certificate number (e.g., WS-2025-001)" class="verify-input">
                                 <button class="btn btn-primary" onclick="verifyCertificate()">
                                     <span class="verify-btn-text">Verify</span>
                                     <div class="verify-btn-spinner hidden">
@@ -172,52 +164,65 @@
             </div>
         </main>
     </div>
+
     <!-- Admin View -->
     <div id="admin-view" class="view">
         <main class="main-content">
-           <center> <div class="content-header">
-                <h1>Admin Dashboard</h1>
-                <p>Manage users, courses, and certificates</p>
-            </div></center>
+            <center>
+                <div class="content-header">
+                    <h1>Admin Dashboard</h1>
+                    <p>Manage users, courses, and certificates</p>
+                </div>
+            </center>
             <!-- Admin Stats -->
-           <center> <div class="stats-grid">
-                <div class="stats-card">
-                    <div class="stats-icon bg-primary">
-                        <i class="fas fa-users"></i>
+            <center>
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <div class="stats-icon bg-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stats-content">
+                            <div class="stats-title">Total Users</div>
+                            <center>
+                                <div class="stats-value" id="admin-total-users">0</div>
+                            </center>
+                        </div>
                     </div>
-                    <div class="stats-content">
-                        <div class="stats-title">Total Users</div>
-                       <center><div class="stats-value" id="admin-total-users">0</div></center> 
+                    <div class="stats-card">
+                        <div class="stats-icon bg-secondary-green">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stats-content">
+                            <div class="stats-title">Total Courses</div>
+                            <center>
+                                <div class="stats-value" id="admin-total-courses">0</div>
+                            </center>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon bg-accent-orange">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="stats-content">
+                            <div class="stats-title">Total Certificates</div>
+                            <center>
+                                <div class="stats-value" id="admin-total-certificates">0</div>
+                            </center>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon bg-purple">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stats-content">
+                            <div class="stats-title">Growth Rate</div>
+                            <center>
+                                <div class="stats-value">+12%</div>
+                            </center>
+                        </div>
                     </div>
                 </div>
-                <div class="stats-card">
-                    <div class="stats-icon bg-secondary-green">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="stats-content">
-                        <div class="stats-title">Total Courses</div>
-                        <center> <div class="stats-value" id="admin-total-courses">0</div></center> 
-                    </div>
-                </div>
-                <div class="stats-card">
-                    <div class="stats-icon bg-accent-orange">
-                        <i class="fas fa-certificate"></i>
-                    </div>
-                    <div class="stats-content">
-                        <div class="stats-title">Total Certificates</div>
-                        <center> <div class="stats-value" id="admin-total-certificates">0</div></center> 
-                    </div>
-                </div>
-                <div class="stats-card">
-                    <div class="stats-icon bg-purple">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="stats-content">
-                        <div class="stats-title">Growth Rate</div>
-                        <center> <div class="stats-value">+12%</div></center> 
-                    </div>
-                </div>
-            </div></center>
+            </center>
             <!-- Admin Tabs -->
             <div class="tabs">
                 <div class="tabs-list">
@@ -233,10 +238,39 @@
                             <i class="fas fa-search"></i>
                             <input type="text" id="users-search" placeholder="Search users...">
                         </div>
-                        <button class="btn btn-primary" onclick="addUser()">
-                            <i class="fas fa-plus"></i>
-                            Add User
+                        <button class="btn btn-primary" onclick="showUserForm()">
+                            <i class="fas fa-plus"></i> Add User
                         </button>
+                    </div>
+                    <div id="user-form-container" class="hidden">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 id="user-form-title">Add User</h3>
+                            </div>
+                            <div class="card-content">
+                                <form id="user-form">
+                                    <div class="form-group">
+                                        <label for="user-name">Name</label>
+                                        <input type="text" id="user-name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="user-email">Email</label>
+                                        <input type="email" id="user-email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="user-role">Role</label>
+                                        <select id="user-role" required>
+                                            <option value="graduate">Graduate</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" class="btn btn-outline" onclick="hideUserForm()">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                     <div id="users-table-container">
                         <!-- Users table will be loaded here -->
@@ -245,50 +279,48 @@
                 <!-- Courses Tab -->
                 <div id="courses-tab" class="tab-content">
                     <div id="course-form-container" class="hidden">
-  <div class="card">
-    <div class="card-header">
-      <h3 id="course-form-title">Add Course</h3>
-    </div>
-    <div class="card-content">
-      <form id="course-form">
-        <div class="form-group">
-          <label for="course-title">Title</label>
-          <input type="text" id="course-title" required>
-        </div>
-        <div class="form-group">
-          <label for="course-description">Description</label>
-          <textarea id="course-description" required></textarea>
-        </div>
-        <div class="form-group">
-          <label for="course-duration">Duration (hours)</label>
-          <input type="number" id="course-duration" required>
-        </div>
-        <div class="form-group">
-          <label for="course-icon">Icon Class</label>
-          <input type="text" id="course-icon" required>
-        </div>
-        <div class="form-group">
-          <label for="course-image">Course Image</label>
-          <input type="file" id="course-image" accept="image/*">
-          <img id="course-image-preview" src="#" alt="Preview" style="max-width: 100px; max-height: 100px; display: none;">
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn btn-outline" onclick="cancelCourseForm()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 id="course-form-title">Add Course</h3>
+                            </div>
+                            <div class="card-content">
+                                <form id="course-form">
+                                    <div class="form-group">
+                                        <label for="course-title">Title</label>
+                                        <input type="text" id="course-title" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="course-description">Description</label>
+                                        <textarea id="course-description" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="course-duration">Duration (hours)</label>
+                                        <input type="number" id="course-duration" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="course-icon">Icon Class</label>
+                                        <input type="text" id="course-icon" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="course-image">Course Image</label>
+                                        <input type="file" id="course-image" accept="image/*">
+                                        <img id="course-image-preview" src="#" alt="Preview" style="max-width: 100px; max-height: 100px; display: none;">
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" class="btn btn-outline" onclick="cancelCourseForm()">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                     <div class="tab-header">
                         <div class="search-container">
                             <i class="fas fa-search"></i>
                             <input type="text" id="courses-search" placeholder="Search courses...">
                         </div>
                         <button class="btn btn-primary" onclick="addCourse()">
-                            <i class="fas fa-plus"></i>
-                            Add Course
+                            <i class="fas fa-plus"></i> Add Course
                         </button>
                     </div>
                     <div id="courses-table-container">
@@ -338,6 +370,7 @@
             </div>
         </main>
     </div>
+
     <!-- Mobile Navigation -->
     <div class="mobile-nav">
         <button class="mobile-nav-btn active" data-view="graduate">
@@ -353,6 +386,7 @@
             <span>Admin</span>
         </button>
     </div>
+
     <!-- Toast Notifications -->
     <div id="toast-container"></div>
     <!-- Dialogs will be inserted here dynamically -->
