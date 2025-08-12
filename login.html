@@ -3,10 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - WeSpark</title>
+    <title>Login - WeSpark</title>
     <link rel="stylesheet" href="prueba.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Scripts de Firebase (en este orden) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- Tu script personalizado -->
+
+
 </head>
 <body>
     <div class="login-container">
@@ -15,13 +22,9 @@
                 <i class="fas fa-graduation-cap"></i>
                 <span>WeSpark</span>
             </div>
-            <h2>Create an account</h2>
-            <p>Please enter your details to sign up</p>
-            <form id="register-form">
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" required>
-                </div>
+            <h2>Welcome back</h2>
+            <p>Please enter your details to sign in</p>
+            <form id="login-form">
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" required>
@@ -30,26 +33,32 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" required>
                 </div>
-                <div class="form-group">
-                    <label for="role">Role</label>
-                    <select id="role" required>
-                        <option value="graduate">Graduate</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Sign Up</button>
+                <button type="submit" class="btn btn-primary">Sign In</button>
             </form>
-            <p class="login-footer">Already have an account? <a href="login.html">Sign in</a></p>
+            <p class="login-footer">Don't have an account? <a href="register.html">Sign up</a></p>
+            <!-- En login.html, dentro del formulario de login -->
+<p class="login-footer">
+    ¿Olvidaste tu contraseña? <a href="#" id="forgot-password-link">Recupérala aquí</a>
+</p>
+
         </div>
     </div>
+    <!-- Modal para recuperación de contraseña -->
+<div id="forgot-password-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Recuperar contraseña</h2>
+        <p>Ingresa tu correo electrónico para recibir un enlace de recuperación.</p>
+        <div class="form-group">
+            <label for="recovery-email">Correo electrónico</label>
+            <input type="email" id="recovery-email" required>
+        </div>
+        <button class="btn btn-primary" onclick="sendPasswordResetEmail()">Enviar enlace de recuperación</button>
+    </div>
+</div>
+
     <div id="toast-container"></div>
-
-    <!-- Incluir los scripts de Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-    <!-- Incluir tu script personalizado -->
-    <script src="register.js"></script>
+ 
+    <script src="login.js"></script>
 </body>
 </html>
